@@ -246,15 +246,17 @@ void check_mouse(XEvent *e)
 		savey = e->xbutton.y;
 	}
 }
+extern void quit_game();
 
 int check_keys(XEvent *e)
 {
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
 		int key = XLookupKeysym(&e->xkey, 0);
-		if (key == XK_Escape) {
-			printf("ESC Pressed\n");
-			return 1;
+		if (key == XK_q) {
+			printf("Q Pressed\n");
+			// return 1;
+			quit_game();
 		}
 		if (key == XK_c) {
 			printf("C pressed\n");
@@ -281,6 +283,7 @@ extern void show_msaini_credits(int, int);
 
 void render()
 {
+	
     glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
