@@ -1,7 +1,7 @@
 //
 //program: background.cpp
-//author:  Jorge Dominguez
-//date:    September 2021
+//author:  Manvir sain, HarmanPreet Cheema, Gorden Griesel
+//date:    November 29, 2021  
 //
 //The position of the background QUAD does not change.
 //Just the texture coordinates change.
@@ -16,22 +16,24 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
-class Image {
+class Image
+{
 public:
 	int width, height;
 	unsigned char *data;
-	~Image() { delete [] data; }
-	Image(const char *fname) {
+	~Image() { delete[] data; }
+	Image(const char *fname)
+	{
 		if (fname[0] == '\0')
 			return;
 		//printf("fname **%s**\n", fname);
 		char name[40];
 		strcpy(name, fname);
 		int slen = strlen(name);
-		name[slen-4] = '\0';
+		name[slen - 4] = '\0';
 		//printf("name **%s**\n", name);
 		char ppmname[80];
-		sprintf(ppmname,"%s.ppm", name);
+		sprintf(ppmname, "%s.ppm", name);
 		//printf("ppmname **%s**\n", ppmname);
 		char ts[100];
 		//system("convert eball.jpg eball.ppm");
@@ -39,7 +41,8 @@ public:
 		system(ts);
 		//sprintf(ts, "%s", name);
 		FILE *fpi = fopen(ppmname, "r");
-		if (fpi) {
+		if (fpi)
+		{
 			char line[200];
 			fgets(line, 200, fpi);
 			fgets(line, 200, fpi);
@@ -49,13 +52,15 @@ public:
 			sscanf(line, "%i %i", &width, &height);
 			fgets(line, 200, fpi);
 			//get pixel data
-			int n = width * height * 3;			
-			data = new unsigned char[n];			
-			for (int i=0; i<n; i++)
+			int n = width * height * 3;
+			data = new unsigned char[n];
+			for (int i = 0; i < n; i++)
 				data[i] = fgetc(fpi);
 			fclose(fpi);
-		} else {
-			printf("ERROR opening image: %s\n",ppmname);
+		}
+		else
+		{
+			printf("ERROR opening image: %s\n", ppmname);
 			exit(0);
 		}
 		unlink(ppmname);
@@ -63,7 +68,8 @@ public:
 };
 Image img[1] = {"fbackground.jpg"};
 
-class Texture {
+class Texture
+{
 public:
 	Image *backImage;
 	GLuint backTexture;
@@ -71,37 +77,45 @@ public:
 	float yc[2];
 };
 
-class Global {
+class Global
+{
 public:
 	int xres, yres;
 	int show_credits = 0;
 	Texture tex;
-	Global() {
-		xres=640, yres=480;
+
+	Global()
+	{
+		xres = 640, yres = 480;
 	}
 } g;
 
-class X11_wrapper {
+class X11_wrapper
+{
 private:
 	Display *dpy;
 	Window win;
 	GLXContext glc;
+
 public:
-	X11_wrapper() {
-		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+	X11_wrapper()
+	{
+		GLint att[] = {GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None};
 		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
 		setup_screen_res(640, 480);
 		dpy = XOpenDisplay(NULL);
-		if(dpy == NULL) {
+		if (dpy == NULL)
+		{
 			printf("\n\tcannot connect to X server\n\n");
 			exit(EXIT_FAILURE);
 		}
 		Window root = DefaultRootWindow(dpy);
 		XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
-		if(vi == NULL) {
+		if (vi == NULL)
+		{
 			printf("\n\tno appropriate visual found\n\n");
 			exit(EXIT_FAILURE);
-		} 
+		}
 		Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 		XSetWindowAttributes swa;
 		swa.colormap = cmap;
@@ -110,52 +124,63 @@ public:
 			ButtonPressMask | ButtonReleaseMask |
 			StructureNotifyMask | SubstructureNotifyMask;
 		win = XCreateWindow(dpy, root, 0, 0, g.xres, g.yres, 0,
-								vi->depth, InputOutput, vi->visual,
-								CWColormap | CWEventMask, &swa);
+							vi->depth, InputOutput, vi->visual,
+							CWColormap | CWEventMask, &swa);
 		set_title();
 		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 		glXMakeCurrent(dpy, win, glc);
 	}
-	void cleanupXWindows() {
+	void cleanupXWindows()
+	{
 		XDestroyWindow(dpy, win);
 		XCloseDisplay(dpy);
 	}
-	void setup_screen_res(const int w, const int h) {
+	void setup_screen_res(const int w, const int h)
+	{
 		g.xres = w;
 		g.yres = h;
 	}
-	void reshape_window(int width, int height) {
+	void reshape_window(int width, int height)
+	{
 		//window has been resized.
 		setup_screen_res(width, height);
 		glViewport(0, 0, (GLint)width, (GLint)height);
-		glMatrixMode(GL_PROJECTION); glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 		glOrtho(0, g.xres, 0, g.yres, -1, 1);
 		set_title();
 	}
-	void set_title() {
+	void set_title()
+	{
 		//Set the window title bar.
 		XMapWindow(dpy, win);
 		XStoreName(dpy, win, "scrolling background (seamless)");
 	}
-	bool getXPending() {
+	bool getXPending()
+	{
 		return XPending(dpy);
 	}
-	XEvent getXNextEvent() {
+	XEvent getXNextEvent()
+	{
 		XEvent e;
 		XNextEvent(dpy, &e);
 		return e;
 	}
-	void swapBuffers() {
+	void swapBuffers()
+	{
 		glXSwapBuffers(dpy, win);
 	}
-	void check_resize(XEvent *e) {
+	void check_resize(XEvent *e)
+	{
 		//The ConfigureNotify is sent by the
 		//server if the window is resized.
 		if (e->type != ConfigureNotify)
 			return;
 		XConfigureEvent xce = e->xconfigure;
-		if (xce.width != g.xres || xce.height != g.yres) {
+		if (xce.width != g.xres || xce.height != g.yres)
+		{
 			//Window size did change.
 			reshape_window(xce.width, xce.height);
 		}
@@ -168,22 +193,36 @@ int check_keys(XEvent *e);
 void physics(void);
 void render(void);
 
+//===========================================================================
+//===========================================================================
+bool gameOver = false;
+bool gameRunning = false;
 
-//===========================================================================
-//===========================================================================
+extern void init_bird();
+
 int main()
 {
 	init_opengl();
-	int done=0;
-	while (!done) {
-		while (x11.getXPending()) {
+	init_bird();
+	int done = 0;
+	while (!done)
+	{
+		while (x11.getXPending())
+		{
 			XEvent e = x11.getXNextEvent();
 			x11.check_resize(&e);
 			check_mouse(&e);
 			done = check_keys(&e);
 		}
-		physics();
-		render();
+		if (gameRunning && not gameOver)
+		{
+			physics();
+		}
+		if (gameOver){
+			g.show_credits = 1;
+		}
+			render();
+
 		x11.swapBuffers();
 	}
 	return 0;
@@ -194,8 +233,10 @@ void init_opengl(void)
 	//OpenGL initialization
 	glViewport(0, 0, g.xres, g.yres);
 	//Initialize matrices
-	glMatrixMode(GL_PROJECTION); glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	//This sets 2D mode (no perspective)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//Clear the screen
@@ -203,24 +244,35 @@ void init_opengl(void)
 	//glClear(GL_COLOR_BUFFER_BIT);
 	//Do this to allow texture maps
 	glEnable(GL_TEXTURE_2D);
+
 	//
 	//load the images file into a ppm structure.
 	//
 	g.tex.backImage = &img[0];
+
 	//create opengl texture elements
 	glGenTextures(1, &g.tex.backTexture);
+
 	int w = g.tex.backImage->width;
 	int h = g.tex.backImage->height;
+
 	glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-							GL_RGB, GL_UNSIGNED_BYTE, g.tex.backImage->data);
+				 GL_RGB, GL_UNSIGNED_BYTE, g.tex.backImage->data);
+
 	g.tex.xc[0] = 0.0;
-	g.tex.xc[1] = 0.25;
+	g.tex.xc[1] = 0.5;
 	g.tex.yc[0] = 0.0;
 	g.tex.yc[1] = 1.0;
+
 }
+extern void flap();
+extern void startClockBird();
+extern void startClockPipe();
+
 
 void check_mouse(XEvent *e)
 {
@@ -229,18 +281,30 @@ void check_mouse(XEvent *e)
 	static int savex = 0;
 	static int savey = 0;
 	//
-	if (e->type == ButtonRelease) {
+	if (e->type == ButtonRelease)
+	{
 		return;
 	}
-	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
+	if (e->type == ButtonPress)
+	{
+		if (e->xbutton.button == 1)
+		{
 			//Left button is down
+			if (!gameOver && !gameRunning)
+			{
+				gameRunning = true;
+				startClockBird();
+				startClockPipe();
+			}
+			flap();
 		}
-		if (e->xbutton.button==3) {
+		if (e->xbutton.button == 3)
+		{
 			//Right button is down
 		}
 	}
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	if (savex != e->xbutton.x || savey != e->xbutton.y)
+	{
 		//Mouse moved
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
@@ -251,16 +315,20 @@ extern void quit_game();
 int check_keys(XEvent *e)
 {
 	//Was there input from the keyboard?
-	if (e->type == KeyPress) {
+	if (e->type == KeyPress)
+	{
 		int key = XLookupKeysym(&e->xkey, 0);
-		if (key == XK_q) {
+		if (key == XK_q)
+		{
 			printf("Q Pressed\n");
 			// return 1;
 			quit_game();
 		}
-		if (key == XK_c) {
+		if (key == XK_c)
+		{
 			printf("C pressed\n");
 			g.show_credits = 1;
+			gameRunning = false;
 		}
 	}
 	// int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
@@ -271,45 +339,49 @@ int check_keys(XEvent *e)
 	return 0;
 }
 
+extern void birdPhysics();
+extern void pipePhysics();
+
 void physics()
 {
 	//move the background
 	g.tex.xc[0] += 0.001;
 	g.tex.xc[1] += 0.001;
+	birdPhysics();
+	pipePhysics();
 }
 
 extern void show_hcheema_credits(int, int);
 extern void show_msaini_credits(int, int);
+extern void drawBird(bool *, bool *);
+extern void drawPipes();
+extern void UpdatePipes(bool *, bool *);
 
 void render()
 {
-	
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
 	glBegin(GL_QUADS);
-		glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0, 0);
-		glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0, g.yres);
-		glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
-		glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
+	glTexCoord2f(g.tex.xc[0], g.tex.yc[1]);
+	glVertex2i(0, 0);
+	glTexCoord2f(g.tex.xc[0], g.tex.yc[0]);
+	glVertex2i(0, g.yres);
+	glTexCoord2f(g.tex.xc[1], g.tex.yc[0]);
+	glVertex2i(g.xres, g.yres);
+	glTexCoord2f(g.tex.xc[1], g.tex.yc[1]);
+	glVertex2i(g.xres, 0);
 	glEnd();
-	
-	if (g.show_credits) {
-		show_hcheema_credits(g.xres/2, g.yres/2); // Harman Credits
-		show_msaini_credits(g.yres/2, g.xres/2); // Manvir Credits
+
+	drawBird(&gameRunning, &gameOver);
+
+	UpdatePipes(&gameRunning, &gameOver);
+	drawPipes();
+
+	if (g.show_credits)
+	{
+		show_hcheema_credits(g.xres / 2, g.yres / 2); // Harman Credits
+		show_msaini_credits(g.yres / 2, g.xres / 2);  // Manvir Credits
+		
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
