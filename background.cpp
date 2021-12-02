@@ -330,6 +330,17 @@ int check_keys(XEvent *e)
 			g.show_credits = 1;
 			gameRunning = false;
 		}
+		if (key == XK_space)
+		{
+			if (!gameOver && !gameRunning)
+			{
+				gameRunning = true;
+				startClockBird();
+				startClockPipe();
+			}
+			flap();
+		}
+		
 	}
 	// int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
 	// if (key == XK_c) {
