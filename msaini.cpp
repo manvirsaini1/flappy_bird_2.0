@@ -20,10 +20,10 @@ void show_msaini_credits(int y, int x)
     // to display credits on the screen (text apears on the screen)
     initialize_fonts();
     Rect r;
-    r.bot = y + 20;
+    r.bot = y + 10;
     r.left = x;
     r.center = 1;
-    ggprint8b(&r, 16, 0x00ff00ff, "Manvir saini did a bit of programming");
+    ggprint8b(&r, 16, 0x00ff00ff, "1. Manvir Saini");
 }
 // used class from background.cpp
 class Image
