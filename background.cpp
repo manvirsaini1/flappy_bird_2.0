@@ -296,7 +296,11 @@ void check_mouse(XEvent *e)
 				startClockBird();
 				startClockPipe();
 			}
-			flap();
+			if (!gameOver)
+			{
+				flap();
+			}
+			
 		}
 		if (e->xbutton.button == 3)
 		{
@@ -339,7 +343,10 @@ int check_keys(XEvent *e)
 				startClockBird();
 				startClockPipe();
 			}
-			flap();
+			if (!gameOver)
+			{
+				flap();
+			}
 		}
 		
 	}
