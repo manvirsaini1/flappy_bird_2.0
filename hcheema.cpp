@@ -193,7 +193,7 @@ void drawPipes()
 
 void pipePhysics()
 {
-    pipes.posX -= 0.005 *11;
+    pipes.posX -= 0.005 *1;
 }
 
 // int Score = 0;
