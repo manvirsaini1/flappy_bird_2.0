@@ -272,7 +272,7 @@ void init_opengl(void)
 extern void flap();
 extern void startClockBird();
 extern void startClockPipe();
-
+extern void quit_game();
 
 void check_mouse(XEvent *e)
 {
@@ -301,6 +301,8 @@ void check_mouse(XEvent *e)
 		if (e->xbutton.button == 3)
 		{
 			//Right button is down
+			printf("Right Button Pressed\n");
+			quit_game();;
 		}
 	}
 	if (savex != e->xbutton.x || savey != e->xbutton.y)
@@ -310,7 +312,6 @@ void check_mouse(XEvent *e)
 		savey = e->xbutton.y;
 	}
 }
-extern void quit_game();
 
 int check_keys(XEvent *e)
 {
