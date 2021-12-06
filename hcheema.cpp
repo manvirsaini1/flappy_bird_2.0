@@ -35,9 +35,14 @@ void show_hcheema_credits(int x, int y)
     r3.bot = y+20;
     r3.left = x;
     r3.center = 1;
+    Rect r4;
+    r4.bot = y - 10;
+    r4.left = x;
+    r4.center = 1;
     std::ostringstream oss;
     oss << "Score: " << Score;
     std::string var = oss.str();
+    ggprint8b(&r4, 16, 0x000000ff, "3. Matthew De Guia");
     ggprint8b(&r3, 16, 0x000000ff, "Credits!");
     ggprint8b(&r2, 16, 0x000000ff, var.c_str());
     ggprint8b(&r, 16, 0x00ff0000, "2. Harmanpreet Singh");
